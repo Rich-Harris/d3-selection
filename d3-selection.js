@@ -7,13 +7,12 @@ if (!this.Map) {
   };
 }
 
-var object = this.global = this;
-object = object.d3 || (object.d3 = {});
+this.d3 || this.d3 = {};
 
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    factory(global.d3)
+    factory((global.d3.selection = {}))
 }(this, function (exports) { 'use strict';
 
     var sourceEvent = function() {
@@ -986,7 +985,7 @@ object = object.d3 || (object.d3 = {});
 
     var bug44083 = global.navigator && /WebKit/.test(global.navigator.userAgent) ? -1 : 0; // https://bugs.webkit.org/show_bug.cgi?id=44083
 
-    var _point = function(node, event) {
+    var src_point = function(node, event) {
       var svg = node.ownerSVGElement || node;
       if (svg.createSVGPoint) {
         var point = svg.createSVGPoint();
@@ -1011,7 +1010,7 @@ object = object.d3 || (object.d3 = {});
     var mouse = function(node, event) {
       if (arguments.length < 2) event = sourceEvent();
       if (event.changedTouches) event = event.changedTouches[0];
-      return _point(node, event);
+      return src_point(node, event);
     };
 
     exports.mouse = mouse;
@@ -1030,27 +1029,27 @@ object = object.d3 || (object.d3 = {});
 
     exports.selectAll = selectAll;
 
-    var _touch = function(node, touches, identifier) {
+    var src_touch = function(node, touches, identifier) {
       if (arguments.length < 3) identifier = touches, touches = sourceEvent().changedTouches;
       for (var i = 0, n = touches ? touches.length : 0, touch; i < n; ++i) {
         if ((touch = touches[i]).identifier === identifier) {
-          return _point(node, touch);
+          return src_point(node, touch);
         }
       }
       return null;
     };
 
-    exports.touch = _touch;
+    exports.touch = src_touch;
 
-    var _touches = function(node, touches) {
+    var src_touches = function(node, touches) {
       if (arguments.length < 2) touches = sourceEvent().touches;
       for (var i = 0, n = touches ? touches.length : 0, points = new Array(n); i < n; ++i) {
-        points[i] = _point(node, touches[i]);
+        points[i] = src_point(node, touches[i]);
       }
       return points;
     };
 
-    exports.touches = _touches;
+    exports.touches = src_touches;
 
 
 

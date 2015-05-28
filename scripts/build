@@ -18,29 +18,23 @@ var polyfill = {
 };
 
 var argv = minimist(process.argv.slice(2)),
-		name = (argv.name || "d3"),
-		names = name.split("."),
-        input = "./" + argv._[0],
+		name = argv.name,
+		input = "./src/" + argv._[0],
 		prologue = argv["polyfill-map"] ? polyfill.Map : "";
 
 var banner =
     ( argv["polyfill-map"] ? polyfill.Map : "" ) +
-    'var object = this.global = this;\n' +
-	names.map(function(name) { return 'object = object.' + name + ' || (object.' + name + ' = {});\n'; }).join("") + "\n";
+    'this.d3 || this.d3 = {};\n\n';
 
 esperanto.bundle({
-  entry: input,
-  base: 'src',
-  modules: {
-    './src/d3-polyfill-map': polyfill.Map
-  }
+  entry: input
 }).then(function(bundle) {
   process.stdout.write(bundle.toUmd({
-    name: "PLACEHOLDER",
+    name: name,
 	indent: "  ",
     banner: banner,
     strict: true
-  }).code.replace("(global.PLACEHOLDER = {})", "global." + name))
+  }).code);
 }).catch(function(error) {
   console.error(error);
 });
