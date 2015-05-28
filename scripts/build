@@ -1,0 +1,47 @@
+#!/usr/bin/env node
+
+var path = require("path"),
+    minimist = require("minimist"),
+    esperanto = require("esperanto");
+
+var polyfill = {
+  "Map":
+      'if (!this.Map) {\n' +
+      '  Map = function() {};\n' +
+      '  Map.prototype = {\n' +
+      '    set: function(k, v) { this["$" + k] = v; return this; },\n' +
+      '    get: function(k) { return this["$" + k]; },\n' +
+      '    has: function(k) { return "$" + k in this; }\n' +
+      '  };\n' +
+      '}\n' +
+      '\n'
+};
+
+var argv = minimist(process.argv.slice(2)),
+		name = (argv.name || "d3"),
+		names = name.split("."),
+        lastName = names.pop(),
+		input = "./" + argv._[0],
+		prologue = argv["polyfill-map"] ? polyfill.Map : "";
+
+var banner =
+    ( argv["polyfill-map"] ? polyfill.Map : "" ) +
+    'var object = this;\n' +
+	names.map(function(name) { return 'object = object.' + name + ' || (object.' + name + ' = {});\n'; }).join("") + "\n";
+
+esperanto.bundle({
+  entry: input,
+  base: 'src',
+  modules: {
+    './src/d3-polyfill-map': polyfill.Map
+  }
+}).then(function(bundle) {
+  process.stdout.write(bundle.toUmd({
+    name: "object." + lastName,
+	indent: "  ",
+    banner: banner,
+    strict: true
+  }).code)
+}).catch(function(error) {
+  console.error(error);
+});
