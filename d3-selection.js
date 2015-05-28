@@ -7,12 +7,13 @@ if (!this.Map) {
   };
 }
 
-var object = this;
+var object = this.global = this;
+object = object.d3 || (object.d3 = {});
 
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
     typeof define === 'function' && define.amd ? define(['exports'], factory) :
-    factory((global.object.d3 = {}))
+    factory(global.d3)
 }(this, function (exports) { 'use strict';
 
     var sourceEvent = function() {

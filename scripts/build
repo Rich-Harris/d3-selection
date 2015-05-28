@@ -20,13 +20,12 @@ var polyfill = {
 var argv = minimist(process.argv.slice(2)),
 		name = (argv.name || "d3"),
 		names = name.split("."),
-        lastName = names.pop(),
-		input = "./" + argv._[0],
+        input = "./" + argv._[0],
 		prologue = argv["polyfill-map"] ? polyfill.Map : "";
 
 var banner =
     ( argv["polyfill-map"] ? polyfill.Map : "" ) +
-    'var object = this;\n' +
+    'var object = this.global = this;\n' +
 	names.map(function(name) { return 'object = object.' + name + ' || (object.' + name + ' = {});\n'; }).join("") + "\n";
 
 esperanto.bundle({
@@ -37,11 +36,11 @@ esperanto.bundle({
   }
 }).then(function(bundle) {
   process.stdout.write(bundle.toUmd({
-    name: "object." + lastName,
+    name: "PLACEHOLDER",
 	indent: "  ",
     banner: banner,
     strict: true
-  }).code)
+  }).code.replace("(global.PLACEHOLDER = {})", "global." + name))
 }).catch(function(error) {
   console.error(error);
 });
